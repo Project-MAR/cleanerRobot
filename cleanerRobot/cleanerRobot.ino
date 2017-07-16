@@ -39,19 +39,25 @@ unsigned int  cleanerCyclic_COUNT     = 0;
 
 void loop() {
   
-  lightSensor1_value = getSensorvalue(lightSensor1);
-  lightSensor2_value = getSensorvalue(lightSensor2);
-  lightSensor3_value = getSensorvalue(lightSensor3);
-  lightSensor4_value = getSensorvalue(lightSensor4);
+  readAllLightSensor();
 
   if (cleanerCyclic_COUNT >= cleanerCyclic_SET) {
     cleanerCyclic_COUNT = 0;
     (cleanerState == Forward) ? (cleanerState = Reverse) : (cleanerState = Forward);
     cleaner(cleanerState)
   }
+
+
   
   cleanerCyclic_COUNT++;  
   delay(1);
+}
+
+void readAllLightSensor(void) {
+  lightSensor1_value = getSensorvalue(lightSensor1);
+  lightSensor2_value = getSensorvalue(lightSensor2);
+  lightSensor3_value = getSensorvalue(lightSensor3);
+  lightSensor4_value = getSensorvalue(lightSensor4);
 }
 
 void leftWheel(unsigned char Direction, unsigned char Power){
