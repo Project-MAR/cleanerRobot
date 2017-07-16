@@ -23,8 +23,35 @@
 #define ON             3
 #define OFF            4
 
-void loop() {
+/*
+ *   Light Sensor Value
+ *   Value = 1 when reach edge of the table
+ */
+unsigned char lightSensor1_value;
+unsigned char lightSensor2_value;
+unsigned char lightSensor3_value;
+unsigned char lightSensor4_value;
 
+
+unsigned int  cleanerCyclic_SET       = 100;      /* set cleaner period here */
+unsigned char cleanerState            = Forward;
+unsigned int  cleanerCyclic_COUNT     = 0;
+
+void loop() {
+  
+  lightSensor1_value = getSensorvalue(lightSensor1);
+  lightSensor2_value = getSensorvalue(lightSensor2);
+  lightSensor3_value = getSensorvalue(lightSensor3);
+  lightSensor4_value = getSensorvalue(lightSensor4);
+
+  if (cleanerCyclic_COUNT >= cleanerCyclic_SET) {
+    cleanerCyclic_COUNT = 0;
+    (cleanerState == Forward) ? (cleanerState = Reverse) : (cleanerState = Forward);
+    cleaner(cleanerState)
+  }
+  
+  cleanerCyclic_COUNT++;  
+  delay(1);
 }
 
 void leftWheel(unsigned char Direction, unsigned char Power){
@@ -78,7 +105,20 @@ void waterPump(unsigned char State, unsigned char Power) {
   }
 }
 
-void 
+void cleaner(unsigned char Direction) {
+  if(Direction == Forward) {
+    digitalWrite(cleaner_A, HIGH);
+    digitalWrite(cleaner_B, LOW);
+  }
+  else if (Direction == Reverse){
+    digitalWrite(cleaner_A, LOW);
+    digitalWrite(cleaner_B, HIGH);
+  }
+  else {
+    digitalWrite(cleaner_A, LOW);
+    digitalWrite(cleaner_B, LOW);
+  }
+}
 
 unsigned char getSensorvalue(unsigned char sensornumber) {
    int result;
@@ -105,4 +145,6 @@ void setup() {
    pinMode(cleaner_B, OUTPUT);
     
    Serial.begin(9600);
+
+   cleaner(Forward);
 }
