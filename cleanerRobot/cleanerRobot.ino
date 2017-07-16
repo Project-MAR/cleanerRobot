@@ -23,17 +23,22 @@
 #define ON             3
 #define OFF            4
 
+#define onTable        0
+#define offTable       1
+
 /*
  *   Light Sensor Value
  *   Value = 1 when reach edge of the table
+ *   
  */
-unsigned char lightSensor1_value;
-unsigned char lightSensor2_value;
+unsigned char lsFrontLeft;            /* front left  */
+unsigned char lsFrontRight;           /* front right */
 unsigned char lightSensor3_value;
 unsigned char lightSensor4_value;
 
+unsigned char lightSentorEvent = 0;
 
-unsigned int  cleanerCyclic_SET       = 100;      /* set cleaner period here */
+unsigned int  cleanerCyclic_SET       = 100;         /* set cleaner period here */
 unsigned char cleanerState            = Forward;
 unsigned int  cleanerCyclic_COUNT     = 0;
 
@@ -41,23 +46,72 @@ void loop() {
   
   readAllLightSensor();
 
+  while (lightSentorEvent == 1) {
+    leftWheel(STOP,  0);
+    rightWheel(STOP, 0);
+
+    /* Both front sensor are off the table, try to turn around and continue moving */
+    if((lsFrontLeft == offTable) && (lsFrontRight == offTable)) {
+      leftWheel(Reverse,  180);
+      rightWheel(Reverse, 180);
+      delay(75);
+      leftWheel(Forward,  180);
+      rightWheel(Reverse, 180);
+      delay(75);
+    }
+    /* Light sensor at front left is off the table */
+    else if (lsFrontLeft == offTable) {
+      leftWheel(Reverse,  180);
+      rightWheel(Reverse, 180);
+      delay(75);
+      leftWheel(Forward,  180);
+      rightWheel(Reverse, 180);
+      delay(75);    
+    }
+    /* Light sensor at front right is off the table */
+    else{
+      leftWheel(Reverse,  180);
+      rightWheel(Reverse, 180);
+      delay(75);
+      leftWheel(Reverse,  180);
+      rightWheel(Forward, 180);
+      delay(75);    
+    }
+
+    readAllLightSensor();
+  }
+
+  /* Moving a cleaner periodically */
   if (cleanerCyclic_COUNT >= cleanerCyclic_SET) {
     cleanerCyclic_COUNT = 0;
     (cleanerState == Forward) ? (cleanerState = Reverse) : (cleanerState = Forward);
-    cleaner(cleanerState)
+    cleaner(cleanerState);
   }
 
-
+  /*Normal operation, keep fowarding*/
+  leftWheel(Forward,  180);
+  rightWheel(Forward, 180);
   
   cleanerCyclic_COUNT++;  
   delay(1);
 }
 
 void readAllLightSensor(void) {
-  lightSensor1_value = getSensorvalue(lightSensor1);
-  lightSensor2_value = getSensorvalue(lightSensor2);
+  lsFrontLeft        = getSensorvalue(lightSensor1);
+  lsFrontRight       = getSensorvalue(lightSensor2);
   lightSensor3_value = getSensorvalue(lightSensor3);
   lightSensor4_value = getSensorvalue(lightSensor4);
+
+  /* all sensors are on the table */
+  if ((lsFrontLeft == onTable)&&(lsFrontRight == onTable)) {
+    lightSentorEvent = 0;
+  }
+
+  /* there is some sonsor is off the table */
+  else if ((lsFrontLeft == offTable)||(lsFrontRight == offTable)) {
+    lightSentorEvent = 1;
+  }
+
 }
 
 void leftWheel(unsigned char Direction, unsigned char Power){
