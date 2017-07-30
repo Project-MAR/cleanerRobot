@@ -71,9 +71,13 @@ unsigned int leftSensorDelay2  = 500;
 unsigned int rightSensorDelay1 = 500;
 unsigned int rightSensorDelay2 = 300;
 
+unsigned int random_cleanerCyclic_SET_Period = 2000;
+unsigned int random_cleanerCyclic_SET_Count  = 0;
+
 void loop() {
   
   while(1) {
+
       readAllLightSensor();
     
       while (lightSentorEvent == 1) {
@@ -110,16 +114,17 @@ void loop() {
           rightWheel(Forward, TurnLeftPower);
           delay(rightSensorDelay2);    
         }
+        
         readAllLightSensor();
       }
     
       /*Normal operation, keep fowarding*/
       leftWheel(Forward,  ForwardPower);
       rightWheel(Forward, ForwardPower);
-      
+
       delay(1);
   }
-  delay(1);
+  //delay(1);
 }
 
 void readAllLightSensor(void) {
@@ -242,6 +247,9 @@ void setup() {
     
    Serial.begin(9600);
 
+   randomSeed(99);
+   randomSeed(analogRead(4));
+   
    cleaner(Forward);
 }
 
@@ -277,6 +285,12 @@ SIGNAL(TIMER0_COMPA_vect)
     pumpIsFirstTime2 = True;
  }
 
+ if(random_cleanerCyclic_SET_Count >= random_cleanerCyclic_SET_Period) {
+    random_cleanerCyclic_SET_Count = 0;
+    cleanerCyclic_SET = random(100, 1000);         
+ }
+      
+  random_cleanerCyclic_SET_Count++;
   cleanerCyclic_COUNT++;  
   pumpCyclic_COUNT++;
 }
