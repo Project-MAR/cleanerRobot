@@ -34,28 +34,31 @@
  *   Value = 1 when reach edge of the table
  *   
  */
-unsigned char lsFrontLeft;            /* front left  */
-unsigned char lsFrontRight;           /* front right */
-unsigned char lightSensor3_value;     /* Not used, for now */
-unsigned char lightSensor4_value;     /* Not used, for now */
+unsigned char lsFrontLeft;            /* front left              */
+unsigned char lsFrontRight;           /* front right             */
+unsigned char lightSensor3_value;     /* Not used, for now       */
+unsigned char lightSensor4_value;     /* Not used, for now       */
 unsigned char lightSentorEvent = 0;   /* Light Sensor event flag */
 
 /* Cleaner config */
-unsigned int  cleanerCyclic_SET       = 500;         /* set cleaner period here */
-unsigned char cleanerState            = Forward;
-unsigned int  cleanerCyclic_COUNT     = 0;
+unsigned int  cleanerCyclic_SET              = 500;         /* set default cleaner period here      */
+unsigned char cleanerState                   = Forward;     /* cleaner's default direction          */
+unsigned int  cleanerCyclic_COUNT            = 0;           /* counter, !!! DO NOT EDIT !!!         */
+unsigned int random_cleanerCyclic_SET_Period = 2000;        /* random period for cleanerCyclic_SET  */
+unsigned int random_cleanerCyclic_SET_Count  = 0;           /* counter, !!! DO NOT EDIT !!!         */
 
 /* pump Config */
-unsigned int  pumpCyclic_SET       = 1500;           /* set pump period here  */
-unsigned int  pumpCyclic_NO        = 20;             /* set pump ON time here */
-unsigned char pumpPower            = 200;            /* Not used, for now */
-unsigned int  pumpCyclic_COUNT     = 0;
+unsigned int  pumpCyclic_SET       = 1500;           /* set pump period here         */
+unsigned int  pumpCyclic_NO        = 20;             /* set pump ON time here        */
+unsigned char pumpPower            = 200;            /* Not used, for now            */
+unsigned int  pumpCyclic_COUNT     = 0;              /* counter, !!! DO NOT EDIT !!! */
 
 /*
  *          Moving config
  *   Delay1 for Backward Delay Time
  *   Delay2 for Turn     Delay Time
- *   ***must be config for appropriate surface friction
+ *
+ *   *** MUST BE CONFIG FOR APPROPRIATE SURFACE FRICTION ***
  */
 unsigned char ForwardPower     = 150;
 unsigned char RewardPower      = 150;
@@ -71,8 +74,6 @@ unsigned int leftSensorDelay2  = 500;
 unsigned int rightSensorDelay1 = 500;
 unsigned int rightSensorDelay2 = 300;
 
-unsigned int random_cleanerCyclic_SET_Period = 2000;
-unsigned int random_cleanerCyclic_SET_Count  = 0;
 
 void loop() {
   
