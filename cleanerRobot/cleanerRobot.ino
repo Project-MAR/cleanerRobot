@@ -29,6 +29,18 @@
 #define False          0
 #define True           1
 
+/* Robot Status */
+#define Holding        0
+#define Moving         1
+
+/* Robot Operation */
+// https://www.di-mgt.com.au/primes1000.html
+unsigned char robotCurrentStatus          = Moving;         /* robot default status            */
+unsigned int  robotMovingTime             = 503;			/* robot config for moving period  */
+unsigned int  robotHoldingTime            = 5003;           /* robot config for holding period */
+unsigned int  robotNormalOperationCounter = 0;				/* counter, !!! DO NOT EDIT !!!    */
+unsigned char robotMoveFlag               = True;           /* flag, !!! DO NOT EDIT !!!       */
+unsigned char robotHoldFlag               = True;           /* flag, !!! DO NOT EDIT !!!       */
 /*
  *   Light Sensor Value
  *   Value = 1 when reach edge of the table
@@ -119,10 +131,30 @@ void loop() {
         readAllLightSensor();
       }
     
-      /*Normal operation, keep fowarding*/
-      leftWheel(Forward,  ForwardPower);
-      rightWheel(Forward, ForwardPower);
+      /*Normal Operation*/
+	  // Move Forward for a period of time
+	  if (robotNormalOperationCounter <= robotMovingTime) {
+		  if (robotMoveFlag == True) {
+			  robotMoveFlag = False;
+		      leftWheel(Forward,  ForwardPower);
+              rightWheel(Forward, ForwardPower);  
+		  }
+	  }
+	  // Holding a position for a period of time
+	  else if (robotNormalOperationCounter <= robotMovingTime + robotHoldingTime) {
+          if (robotHoldFlag == True) {
+			  robotHoldFlag = False;
+			  leftWheel(STOP,  0);
+              rightWheel(STOP, 0);
+		  }
+	  }
+	  else if (robotNormalOperationCounter >= robotMovingTime + robotHoldingTime) {
+		  robotNormalOperationCounter = 0;
+		  robotHoldFlag = True;
+		  robotMoveFlag = True;
+	  }
 
+	  robotNormalOperationCounter++;
       delay(1);
   }
   //delay(1);
