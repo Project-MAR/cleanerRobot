@@ -35,12 +35,12 @@
 
 /* Robot Operation */
 // https://www.di-mgt.com.au/primes1000.html
-unsigned char robotCurrentStatus          = Moving;         /* robot default status            */
-unsigned int  robotMovingTime             = 503;			/* robot config for moving period  */
-unsigned int  robotHoldingTime            = 5003;           /* robot config for holding period */
+unsigned char robotCurrentStatus          = Moving;   /* robot default status            */
+unsigned int  robotMovingTime             = 100;			/* robot config for moving period  */
+unsigned int  robotHoldingTime            = 1000;     /* robot config for holding period */
 unsigned int  robotNormalOperationCounter = 0;				/* counter, !!! DO NOT EDIT !!!    */
-unsigned char robotMoveFlag               = True;           /* flag, !!! DO NOT EDIT !!!       */
-unsigned char robotHoldFlag               = True;           /* flag, !!! DO NOT EDIT !!!       */
+unsigned char robotMoveFlag               = True;     /* flag, !!! DO NOT EDIT !!!       */
+unsigned char robotHoldFlag               = True;     /* flag, !!! DO NOT EDIT !!!       */
 /*
  *   Light Sensor Value
  *   Value = 1 when reach edge of the table
@@ -94,6 +94,7 @@ void loop() {
       readAllLightSensor();
     
       while (lightSentorEvent == 1) {
+        Serial.println("Sensor Event");
         leftWheel(STOP,  0);
         rightWheel(STOP, 0);
     
@@ -133,22 +134,28 @@ void loop() {
     
       /*Normal Operation*/
 	  // Move Forward for a period of time
+    Serial.println(robotNormalOperationCounter);
 	  if (robotNormalOperationCounter <= robotMovingTime) {
 		  if (robotMoveFlag == True) {
+        Serial.println("Move");
+        //delay(1000);
 			  robotMoveFlag = False;
-		      leftWheel(Forward,  ForwardPower);
-              rightWheel(Forward, ForwardPower);  
+		    leftWheel(Forward,  ForwardPower);
+        rightWheel(Forward, ForwardPower);  
 		  }
 	  }
 	  // Holding a position for a period of time
 	  else if (robotNormalOperationCounter <= robotMovingTime + robotHoldingTime) {
-          if (robotHoldFlag == True) {
+      if (robotHoldFlag == True) {
+        Serial.println("Hold");
+        //delay(1000);
 			  robotHoldFlag = False;
 			  leftWheel(STOP,  0);
-              rightWheel(STOP, 0);
+        rightWheel(STOP, 0);
 		  }
 	  }
 	  else if (robotNormalOperationCounter >= robotMovingTime + robotHoldingTime) {
+		  Serial.println("Reset State");
 		  robotNormalOperationCounter = 0;
 		  robotHoldFlag = True;
 		  robotMoveFlag = True;
@@ -193,7 +200,9 @@ void leftWheel(unsigned char Direction, unsigned char Power){
    else {
       //Serial.println("leftWheel is stop");
       analogWrite(leftWheel_A, 0);
-      analogWrite(leftWheel_A, 0);
+      analogWrite(leftWheel_B, 0);
+      //digitalWrite(leftWheel_A, HIGH);
+      //digitalWrite(leftWheel_B, HIGH);
    }
 }
 
@@ -214,6 +223,8 @@ void rightWheel(unsigned char Direction, unsigned char Power) {
       //Serial.println("rightWheel is stop");
       analogWrite(rightWheel_A, 0);
       analogWrite(rightWheel_B, 0);
+      //digitalWrite(rightWheel_A, HIGH);
+      //digitalWrite(rightWheel_B, HIGH);
    }
 }
 
@@ -296,6 +307,7 @@ SIGNAL(TIMER0_COMPA_vect)
     cleanerCyclic_COUNT = 0;
     (cleanerState == Forward) ? (cleanerState = Reverse) : (cleanerState = Forward);
     cleaner(cleanerState);
+    //cleaner(STOP);
   }
 
   if(pumpCyclic_COUNT <= pumpCyclic_SET) {
@@ -310,6 +322,7 @@ SIGNAL(TIMER0_COMPA_vect)
         //Serial.println("pump on");
         pumpIsFirstTime2 = False;
         waterPump(ON, pumpPower); 
+        //waterPump(OFF, pumpPower);
     }
  }
  else if (pumpCyclic_COUNT >= pumpCyclic_SET + pumpCyclic_NO){
